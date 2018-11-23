@@ -18,6 +18,12 @@
             type: Phaser.AUTO,
             width: 800,
             height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: false
+                }
+            },
             scene: {
                 preload: preload,
                 create: create,
@@ -26,11 +32,16 @@
         };
 
         var game = new Phaser.Game(config);
+        var player;
+        var playerSpeed = 160;
 
         function preload ()
         {
+            // load images
             this.load.image('grass1', 'gfx/grass1.png');
 
+            // load sprites
+            this.load.spritesheet('dude', 'gfx/dude1.png', {frameWidth: 32, frameHeight: 32});
         }
 
         function create ()
@@ -41,11 +52,63 @@
                 for(j=0;j<config.width/6;j++){
                     this.add.image(80*i, 80*j, 'grass1');
                 }
-            }// this.add.image(80, 240, 'grass1');
+            }
+
+            // create of player physics sprite
+            player = this.physics.add.sprite(100, 450, 'dude');
+
+            // key control
+            cursors = this.input.keyboard.createCursorKeys();
+
+            // LEFT
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4}),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            // CENTER
+            this.anims.create({
+                key: 'stop',
+                frames: [ { key: 'dude', frame: 5 } ],
+                frameRate: 20
+            });
+
+            // RIGHT
+            this.anims.create({
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('dude', { start: 6, end: 10 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            
         }
 
         function update ()
         {
+            // ############### MOVEMENT #################### //
+            if (cursors.left.isDown){
+                player.setVelocityX(-1 * playerSpeed);
+                player.anims.play('left', true);
+            }
+            else if (cursors.right.isDown){
+                player.setVelocityX(1 * playerSpeed);
+                player.anims.play('right', true);
+            }
+            else if (cursors.up.isDown){
+                player.setVelocityY(-1 * playerSpeed);
+                // player.anims.play('turn');
+            }
+            else if (cursors.down.isDown){
+                player.setVelocityY(1 * playerSpeed);
+            }
+            else {
+                player.setVelocityY(0);
+                player.setVelocityX(0);
+                player.anims.play('stop');
+
+            }
         }
 
     </script>
